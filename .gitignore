@@ -1,0 +1,9 @@
+data/
+patches/
+weights/
+*.pth
+__pycache__/
+*.pyc
+.DS_Store
+outdated_scripts/
+run.bat
