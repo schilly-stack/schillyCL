@@ -6,6 +6,10 @@ from basicsr.archs.rrdbnet_arch import RRDBNet
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
+MODEL_PATH = "weights/schillyCL.pth"
+INPUT_DIR  = Path("data/test")
+OUTPUT_DIR = Path("data/test_output")
+
 model = RRDBNet(
     num_in_ch=3,
     num_out_ch=3,
@@ -15,16 +19,12 @@ model = RRDBNet(
     scale=1
 )
 
-checkpoint = torch.load(
-    "C:/Users/Johan Bachmann/Real-ESRGAN/experiments/manga_restore/models/net_g_latest.pth",
-    map_location="cpu"
-)
+checkpoint = torch.load(MODEL_PATH, map_location="cpu")
 
 model.load_state_dict(checkpoint["params_ema"], strict=True)
 model.eval().to(device)
 
 def preprocess(img):
-    # Bilateral filter — bevarer kanter, reducerer grain og halvtone dots
     return cv2.bilateralFilter(img, d=5, sigmaColor=20, sigmaSpace=20)
 
 def smooth_halftone(img, blur_strength=3):
@@ -55,7 +55,6 @@ def adaptive_blacks(img, block_size=11, C=8):
      return result
 
 def post_process(img):
-    # Levels — trækker blacks ned og whites op
     img = img.astype(np.float32)
     img = (img - 30) / (230 - 30) * 255
     img = np.clip(img, 0, 255).astype(np.uint8)
@@ -120,4 +119,4 @@ for img_path in input_dir.glob("*.png"):
     cv2.imwrite(str(output_dir / img_path.name), result)
     print(f"Done: {img_path.name}")
 
-print("Færdig")
+print("Done")

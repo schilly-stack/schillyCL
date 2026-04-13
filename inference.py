@@ -1,3 +1,4 @@
+from pathlib import Path
 import cv2
 import os
 import torch
@@ -12,9 +13,9 @@ def resize_to_height(img, target_height=2200):
 
 def run_full_page_inference():
 
-    model_path = r"C:/Users/Johan Bachmann/Real-ESRGAN/experiments/manga_restore/models/net_g_latest.pth"
-    input_folder = r'C:\Users\Johan Bachmann\Documents\manga-restore\data\test'
-    output_folder = r'C:\Users\Johan Bachmann\Documents\manga-restore\data\test_output'
+    model_path = "weights/schillyCL.pth"
+    input_folder = Path("data/test")
+    output_folder = Path("data/test_output")
     
     if not os.path.exists(output_folder):
         os.makedirs(output_folder)
