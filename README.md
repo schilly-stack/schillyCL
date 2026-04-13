@@ -2,7 +2,7 @@
 
 > AI-powered restoration of physical Weekly Shonen Jump manga scans
 
-schillyCL is a fine-tuned image restoration model built on Real-ESRGAN, trained to clean physical WSJ magazine scans — removing paper grain, yellowing, halftone artifacts, and restoring black ink lines to their original clarity.
+schillyCL is a fine-tuned image restoration model built on Real-ESRGAN, trained to clean physical WSJ magazine scans by removing paper grain, yellowing, halftone artifacts, and restoring black ink lines to their original clarity.
 
 ---
 
@@ -36,7 +36,7 @@ schillyCL is a fine-tuned image restoration model built on Real-ESRGAN, trained 
 - Removes paper grain and yellowing from physical magazine scans
 - Reduces halftone dot patterns while preserving fine detail
 - Restores black ink lines without over-smoothing
-- Tile-based inference with Gaussian blending — no visible seams
+- Tile-based inference with Gaussian blending giving no visible seams
 - Optional bilateral filter pre-processing and levels post-processing
 - Outputs at 2200px height by default
 
@@ -49,7 +49,7 @@ schillyCL is based on RRDBNet (Real-ESRGAN architecture) fine-tuned on a dataset
 Training highlights:
 - Real scan/digital pairs aligned via ORB feature matching
 - Custom WeightedL1Loss punishing incorrect black pixel output 3x harder than standard L1
-- Scale 1 restoration — no upscaling, pure quality improvement
+- Scale 1 restoration; no upscaling, pure quality improvement
 - Trained on RTX 3060 12GB
 
 **Model weights are not included in this repository.**  
