@@ -1,7 +1,6 @@
 import subprocess
 import sys
 from pathlib import Path
-
 from rich.console import Console
 from rich.panel import Panel
 from rich.prompt import Prompt, Confirm
@@ -58,7 +57,7 @@ def select_weight(default="weights/schillyCL.pth"):
 def run_inference(filtered=False):
     clear()
     header()
-    script = "inference_filtered.py" if filtered else "inference.py"
+    script = "filtered_inference.py" if filtered else "inference.py"
     label  = "Filtered inference" if filtered else "Standard inference"
     console.print(Panel(f"[bold]{label}[/bold]", style="cyan", expand=False))
     console.print()
