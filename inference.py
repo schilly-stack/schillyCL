@@ -17,11 +17,11 @@ INPUT_DIR  = Path(args.input)
 OUTPUT_DIR = Path(args.output)
 
 if torch.backends.mps.is_available():
-    device = 'mps'  # This is the "Mac" setting
+    device = 'mps'  
 elif torch.cuda.is_available():
-    device = 'cuda' # This is the "Nvidia" setting
+    device = 'cuda' 
 else:
-    device = 'cpu'  # Fallback for everyone else
+    device = 'cpu'
 
 print(f"Running on: {device}")
 
