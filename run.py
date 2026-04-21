@@ -6,12 +6,11 @@ from rich.panel import Panel
 from rich.prompt import Prompt, Confirm
 from rich.progress import Progress, SpinnerColumn, TextColumn
 from rich.table import Table
-from rich import print as rprint
 import pyfiglet
 
 console = Console()
 
-# ── Helpers ──────────────────────────────────────────────────────────────────
+# ── Helpers ───────────────────────────────────────────────────────────────────
 
 def clear():
     console.clear()
@@ -28,8 +27,6 @@ def header():
 
 def back_prompt():
     Prompt.ask("\n[dim]Press Enter to return to menu[/dim]", default="")
-
-# ── Folder selection ──────────────────────────────────────────────────────────
 
 def select_folder(label, default):
     console.print(f"[yellow]{label}[/yellow] [dim](default: {default})[/dim]")
@@ -52,13 +49,17 @@ def select_weight(default="weights/schillyCL.pth"):
         return None
     return p
 
+def run_script(script, args=[]):
+    result = subprocess.run([sys.executable, script] + args, capture_output=False)
+    return result.returncode == 0
+
 # ── Inference ─────────────────────────────────────────────────────────────────
 
 def run_inference(filtered=False):
     clear()
     header()
     script = "filtered_inference.py" if filtered else "inference.py"
-    label  = "Filtered inference" if filtered else "Standard inference"
+    label  = "Filtered Inference" if filtered else "Standard Inference"
     console.print(Panel(f"[bold]{label}[/bold]", style="cyan", expand=False))
     console.print()
 
@@ -97,9 +98,9 @@ def run_inference(filtered=False):
         result = subprocess.run(
             [
                 sys.executable, script,
-                "--weight",  str(weight),
-                "--input",   str(input_dir),
-                "--output",  str(output_dir)
+                "--weight", str(weight),
+                "--input",  str(input_dir),
+                "--output", str(output_dir)
             ],
             capture_output=False
         )
@@ -111,6 +112,68 @@ def run_inference(filtered=False):
         console.print(f"[dim]{len(files)} files saved to {output_dir}[/dim]")
     else:
         console.print("\n[bold red]Inference failed.[/bold red]")
+
+    back_prompt()
+
+# ── Halftone ──────────────────────────────────────────────────────────────────
+
+def run_halftone():
+    clear()
+    header()
+    console.print(Panel("[bold]Halftone Post-Processing[/bold]", style="cyan", expand=False))
+    console.print()
+
+    input_dir = select_folder("Input folder", Path("data/test_output"))
+    if input_dir is None:
+        back_prompt()
+        return
+
+    output_dir = select_folder("Output folder", Path("data/halftone_output"))
+    if output_dir is None:
+        back_prompt()
+        return
+
+    lpi = Prompt.ask("Lines per inch (LPI)", default="60")
+    angle = Prompt.ask("Screen angle", default="45")
+    "--lpi", lpi,
+    "--angle", angle
+
+    console.print()
+    console.print(f"[dim]Input:    {input_dir}[/dim]")
+    console.print(f"[dim]Output:   {output_dir}[/dim]")
+    console.print(f"[dim]LPI:      {lpi}[/dim]")
+    console.print(f"[dim]Angle:    {angle}[/dim]")
+    console.print()
+
+    if not Confirm.ask("Run?"):
+        back_prompt()
+        return
+
+    console.print()
+    with Progress(
+        SpinnerColumn(),
+        TextColumn("[progress.description]{task.description}"),
+        console=console
+    ) as progress:
+        task = progress.add_task("Applying halftone...", total=None)
+        result = subprocess.run(
+            [
+                sys.executable, "scripts/utils/halftone_filter.py",
+                "--input",    str(input_dir),
+                "--output",   str(output_dir),
+                "--lpi",      lpi,
+                "--angle",    angle
+            ],
+            capture_output=False
+        )
+        progress.update(task, completed=True)
+
+    if result.returncode == 0:
+        console.print("\n[bold green]Done.[/bold green]")
+        files = list(output_dir.glob("*.jpg")) + list(output_dir.glob("*.png"))
+        console.print(f"[dim]{len(files)} files saved to {output_dir}[/dim]")
+    else:
+        console.print("\n[bold red]Halftone failed.[/bold red]")
 
     back_prompt()
 
@@ -143,9 +206,8 @@ def prepare_dataset():
     if choice == "b":
         return
 
-    script = scripts[choice]
-    console.print(f"\n[dim]Running {script}...[/dim]\n")
-    subprocess.run([sys.executable, script])
+    console.print(f"\n[dim]Running {scripts[choice]}...[/dim]\n")
+    subprocess.run([sys.executable, scripts[choice]])
     back_prompt()
 
 # ── Inspect checkpoint ────────────────────────────────────────────────────────
@@ -175,23 +237,26 @@ def main():
         table = Table(show_header=False, box=None)
         table.add_row("[cyan]1[/cyan]", "Run inference")
         table.add_row("[cyan]2[/cyan]", "Run filtered inference")
-        table.add_row("[cyan]3[/cyan]", "Prepare dataset")
-        table.add_row("[cyan]4[/cyan]", "Inspect checkpoint")
-        table.add_row("[cyan]5[/cyan]", "Exit")
+        table.add_row("[cyan]3[/cyan]", "Apply halftone post-process")
+        table.add_row("[cyan]4[/cyan]", "Prepare dataset")
+        table.add_row("[cyan]5[/cyan]", "Inspect checkpoint")
+        table.add_row("[cyan]6[/cyan]", "Exit")
         console.print(table)
         console.print()
 
-        choice = Prompt.ask("Select", choices=["1","2","3","4","5"])
+        choice = Prompt.ask("Select", choices=["1","2","3","4","5","6"])
 
         if choice == "1":
             run_inference(filtered=False)
         elif choice == "2":
             run_inference(filtered=True)
         elif choice == "3":
-            prepare_dataset()
+            run_halftone()
         elif choice == "4":
-            inspect_checkpoint()
+            prepare_dataset()
         elif choice == "5":
+            inspect_checkpoint()
+        elif choice == "6":
             clear()
             console.print("[cyan]Bye.[/cyan]")
             break

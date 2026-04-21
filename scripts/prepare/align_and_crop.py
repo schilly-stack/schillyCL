@@ -34,7 +34,7 @@ def match_resolution(scan, digital):
 def align_pair(scan, digital):
     s_gray = cv2.cvtColor(scan, cv2.COLOR_BGR2GRAY)
     d_gray = cv2.cvtColor(digital, cv2.COLOR_BGR2GRAY)
-    orb = cv2.ORB_create(5000)
+    orb = cv2.ORB_create(10000)
     kp1, des1 = orb.detectAndCompute(s_gray, None)
     kp2, des2 = orb.detectAndCompute(d_gray, None)
     if des1 is None or des2 is None:
@@ -87,7 +87,7 @@ def random_crops(aligned_scan, digital, clean_out, degraded_out, stem):
     return count
 
 scan_dir     = Path("data/scans")
-digital_dir  = Path("data/digitals")
+digital_dir  = Path("data/aligned_digitals")
 clean_out    = Path("data/crops/clean")
 degraded_out = Path("data/crops/degraded")
 clean_out.mkdir(parents=True, exist_ok=True)

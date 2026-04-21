@@ -65,11 +65,11 @@ if __name__ == "__main__":
     choice = input("Choose mode (1/2): ").strip()
     
     if choice == "1":
-        rename_sequential([Path("data/scans"), Path("data/digitals")])
+        rename_sequential([Path("data/scans"), Path("data/aligned_digitals")])
         print("\nDone — run align_and_crop.py next")
     
     elif choice == "2":
-        rename_flatten(Path("data/digitals"))
+        rename_flatten(Path("data/aligned_digitals"))
         print("\nDone — run degrade.py next")
     
     else:
